@@ -18,12 +18,6 @@ class UserController extends UserController
 
         $validator = Validator::make(json_decode($req->getContent(), true), [
 
-            "name" => 'required|max:50',
-            "email" => 'required|email|unique:App\Models\User,email|max:40',
-            "password" => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
-            "work_role" => 'required|in:Dirección,RRHH,Empleado',
-            "salary" => 'required', 'numeric',
-            "bio" => 'required|max:150'
 
         ]);
 
@@ -39,12 +33,6 @@ class UserController extends UserController
 
             $user = new User();
 
-            $user->name = $data->name;
-            $user->email = $data->email;
-            $user->password = Hash::make($data->password);
-            $user->work_role = $data->work_role;
-            $user->salary = $data->salary;
-            $user->bio = $data->bio;
 
 
             try {
