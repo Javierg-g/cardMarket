@@ -8,31 +8,37 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordRecovered;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 
-class UserController extends UserController
+class UserController extends Controller
 {
     public function register(Request $req)
     {
         $response = ["status" => 1, "msg" => ""];
 
         $validator = Validator::make(json_decode($req->getContent(), true), [
-
+            "name" => 'required|unique:App\Models\User,name|max:60',
+            //"email" => 'required|email|unique:App\Models\User,email|max:40',
+            //"password" => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
+            //"role" => 'required|in:Particular,Profesional,Admin',
 
         ]);
 
         if ($validator->fails()) {
             $response['status'] = "0";
-            print("Errores de la validación de la edición:" . $validator->errors());
+            print("Errores de la validación:" . $validator->errors());
             $response['msg'] = "Los campos introducidos no son correctos";
-
             return response()->json($response);
         } else {
 
             $data = json_decode($req->getContent());
-
+        
             $user = new User();
-
+            $user->name = $data->name;
+            $user->email = $data->email;
+            $user->password = Hash::make($data->password);
+            $user->role = $data->role;
 
 
             try {
@@ -53,15 +59,15 @@ class UserController extends UserController
 
         $data = json_decode($req->getContent());
 
+        $user = User::where('name', '=', $data->name)->first();
+
         try {
 
-            if (User::where('email', '=', $data->email)->first()) {
-                $user = User::where('email', '=', $data->email)->first();
+            if ($user) {
                 if (Hash::check($data->password, $user->password)) {
                     do {
                         $token = Hash::make($user->id . now());
                     } while (User::where('api_token', $token)->first());
-
                     $user->api_token = $token;
                     $user->save();
                     $response['msg'] = "Accediendo a la cuenta...";
@@ -94,9 +100,7 @@ class UserController extends UserController
                 $user->password = Hash::make($newPassword);
                 $user->save();
 
-
-                //Mail::to($user->email)->send(new PasswordRecovered($newPassword));
-                $response['msg'] = "Correo enviado a la dirección = " . $user->email;
+                $response['msg'] = "Su nueva contraseña es:" . $newPassword;
             } else {
                 $response['msg'] = "El usuario no se ha encontrado";
             }

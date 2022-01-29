@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
-class CollectionController extends CollectionController
+class CollectionController extends Controller
 {
     //
 }

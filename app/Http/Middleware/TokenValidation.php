@@ -20,7 +20,7 @@ class TokenValidation
 
         if (isset($request->api_token)) {
             $tokenForApi = $request->api_token;
-            if($user = User::where('api_token', $tokenForApi)->first()){
+            if(User::where('api_token', $tokenForApi)->first()){
                 $user = User::where('api_token', $tokenForApi)->first();
                 $request->user = $user;
                 return $next($request);

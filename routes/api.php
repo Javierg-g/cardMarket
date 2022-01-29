@@ -16,17 +16,19 @@ use App\Models\User;
 |
 */
 
-/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});*/
-
 Route::middleware(['token', 'permissions'])->prefix('users')->group(function () {
     Route::put('/register', [UserController::class, 'register']);
+});
+
+Route::middleware(['token'])->prefix('users')->group(function () {
+    //Route::post('/login', [UserController::class, 'login']);
+    Route::post('/passwordRecovery', [UserController::class, 'passwordRecovery']);
 
 });
 
 //Sin paso por middlewares
 Route::prefix('users')->group(function () {
+    Route::put('/register', [UserController::class, 'register']);
     Route::post('/login', [UserController::class, 'login']);
-    Route::post('/passwordRecovery', [EmployeesController::class, 'passwordRecovery']);
+    //Route::post('/passwordRecovery', [UserController::class, 'passwordRecovery']);
 });
