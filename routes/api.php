@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\cardManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -16,12 +17,13 @@ use App\Models\User;
 |
 */
 
-Route::middleware(['token', 'permissions'])->prefix('users')->group(function () {
-    Route::put('/register', [UserController::class, 'register']);
+Route::middleware(['token', 'permissions'])->prefix('cardManagement')->group(function () {
+    Route::put('/addCard', [cardManagement::class, 'addCard']);
+    Route::put('/addCollection', [cardManagement::class, 'addCollection']);
+
 });
 
 Route::middleware(['token'])->prefix('users')->group(function () {
-    //Route::post('/login', [UserController::class, 'login']);
     Route::post('/passwordRecovery', [UserController::class, 'passwordRecovery']);
 
 });
@@ -30,5 +32,4 @@ Route::middleware(['token'])->prefix('users')->group(function () {
 Route::prefix('users')->group(function () {
     Route::put('/register', [UserController::class, 'register']);
     Route::post('/login', [UserController::class, 'login']);
-    //Route::post('/passwordRecovery', [UserController::class, 'passwordRecovery']);
 });

@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\PasswordRecovered;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +17,9 @@ class UserController extends Controller
 
         $validator = Validator::make(json_decode($req->getContent(), true), [
             "name" => 'required|unique:App\Models\User,name|max:60',
-            //"email" => 'required|email|unique:App\Models\User,email|max:40',
-            //"password" => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
-            //"role" => 'required|in:Particular,Profesional,Admin',
+            "email" => 'required|email|unique:App\Models\User,email|max:40',
+            "password" => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
+            "role" => 'required|in:Particular,Profesional,Admin',
 
         ]);
 
@@ -43,7 +41,7 @@ class UserController extends Controller
 
             try {
                 $user->save();
-                $response['msg'] = "Empleado registrado con id: " . $user->id;
+                $response['msg'] = "Usuario registrado con id: " . $user->id;
             } catch (\Exception $e) {
                 $response['status'] = 0;
                 $req['msg'] = "Se ha producido un error" . $e->getMessage();
