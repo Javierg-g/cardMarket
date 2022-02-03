@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Models\Card;
 use App\Models\CardInCollection;
 use App\Models\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
 
 class cardManagement extends Controller
@@ -29,9 +31,9 @@ class cardManagement extends Controller
             return response()->json($response);
         } else {
             $data = json_decode($req->getContent());
-            $collection = Collection::where('id','=',$data->collection)->first();
+            $collection = Collection::where('id', '=', $data->collection)->first();
 
-            if($collection){
+            if ($collection) {
                 $card = new Card();
                 $card->name = $data->name;
                 $card->description = $data->description;
@@ -42,12 +44,12 @@ class cardManagement extends Controller
                     $selectedCollection->card_id = $card->id;
                     $selectedCollection->collection_id = $collection->id;
                     $selectedCollection->save();
-                    $response['msg'] = "Carta registrada con id: " . $card->id." en coleccion con id:".$selectedCollection;
+                    $response['msg'] = "Carta registrada con id: " . $card->id . " en coleccion con id:" . $selectedCollection;
                 } catch (\Exception $e) {
                     $response['status'] = 0;
                     $req['msg'] = "Se ha producido un error" . $e->getMessage();
                 }
-            }else{
+            } else {
                 $response['status'] = 0;
                 $req['msg'] = "No existe esa coleccion";
             }
@@ -90,5 +92,33 @@ class cardManagement extends Controller
 
             return response()->json($response);
         }
+    }
+
+    public function searchCard(Request $search)
+    {
+        $response = ["status" => 1, "msg" => ""];
+
+        Log::info('- Inicio de la búsqueda -');
+
+        if (isset($search)) {
+        Log::debug('Parámetro de búsqueda introducido');
+            try {
+                Log::debug('Consulta de búsqueda hecha');
+                $cards = Card::where('name', 'like', '%', $search, '%')
+                    ->orderBy('name');
+            } catch (\Exception $e) {
+                $response['status'] = 0;
+                Log::error("Error en la búsqueda: ".$e);
+                $req['msg'] = "Se ha producido un error" . $e->getMessage();
+            }
+        }else{
+            $response['status'] = 0;
+            Log::warning('No se ha introducido ningún parámetro en la búsqueda');
+            $req['msg'] = "No se ha introducido ningun parámetro de búsqueda";
+        }
+        Log::debug('Recoger resultados de búsqueda');
+        $response['Resultados de la búsqueda'] = $cards;
+
+        return response()->json($response);
     }
 }

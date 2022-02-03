@@ -25,6 +25,8 @@ Route::middleware(['token', 'permissions'])->prefix('cardManagement')->group(fun
 
 Route::middleware(['token'])->prefix('users')->group(function () {
     Route::post('/passwordRecovery', [UserController::class, 'passwordRecovery']);
+    Route::get('/searchCard', [cardManagement::class, 'searchCard']);
+
 
 });
 
