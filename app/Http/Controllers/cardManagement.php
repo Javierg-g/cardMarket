@@ -20,42 +20,32 @@ class cardManagement extends Controller
 
         $validator = Validator::make(json_decode($req->getContent(), true), [
             "name" => 'required|max:50',
-            "description" => 'required|max:150',
-            "collection" => 'required|integer',
+            "description" => 'required|max:150'
+            //"collection" => 'required|integer',
         ]);
 
         if ($validator->fails()) {
             $response['status'] = "0";
             print("Errores de la validación:" . $validator->errors());
             $response['msg'] = "Los campos introducidos no son correctos";
-            return response()->json($response);
         } else {
             $data = json_decode($req->getContent());
-            $collection = Collection::where('id', '=', $data->collection)->first();
+            //$collection = Collection::where('id', '=', $data->collection)->first();
 
-            if ($collection) {
-                $card = new Card();
-                $card->name = $data->name;
-                $card->description = $data->description;
+            $card = new Card();
+            $card->name = $data->name;
+            $card->description = $data->description;
 
-                try {
-                    $card->save();
-                    $selectedCollection = new CardInCollection();
-                    $selectedCollection->card_id = $card->id;
-                    $selectedCollection->collection_id = $collection->id;
-                    $selectedCollection->save();
-                    $response['msg'] = "Carta registrada con id: " . $card->id . " en coleccion con id:" . $selectedCollection;
-                } catch (\Exception $e) {
-                    $response['status'] = 0;
-                    $req['msg'] = "Se ha producido un error" . $e->getMessage();
-                }
-            } else {
+            try {
+                $card->save();
+                $response['msg'] = "Carta registrada con id: " . $card->id;
+            } catch (\Exception $e) {
+
                 $response['status'] = 0;
-                $req['msg'] = "No existe esa coleccion";
+                $req['msg'] = "Se ha producido un error" . $e->getMessage();
             }
-
-            return response()->json($response);
         }
+        return response()->json($response);
     }
 
     public function addCollection(Request $req)
@@ -94,31 +84,64 @@ class cardManagement extends Controller
         }
     }
 
-    public function searchCard(Request $search)
+    public function searchCard(Request $req)
     {
-        $response = ["status" => 1, "msg" => ""];
+        $response = ["status" => 1];
 
         Log::info('- Inicio de la búsqueda -');
 
-        if (isset($search)) {
-        Log::debug('Parámetro de búsqueda introducido');
+        if ($req->search) {
+            Log::debug('Parámetro de búsqueda introducido');
             try {
                 Log::debug('Consulta de búsqueda hecha');
-                $cards = Card::where('name', 'like', '%', $search, '%')
-                    ->orderBy('name');
+
+                $cards = Card::where('name', 'like', '%' . $req->search . '%')
+                    ->orWhere('id', 'like', '%' . $req->search . '%')
+                    ->orderBy('name')
+                    ->get();
+
+                if (count($cards) == 0) {
+                    Log::debug('Sin resultados para la busqueda');
+                    $response['Resultados de la busqueda'] = "No hay resultados";
+                } else {
+                    Log::debug('Resultados econtrados para la busqueda');
+                    $response['Resultados de la busqueda'] = $cards;
+                }
             } catch (\Exception $e) {
                 $response['status'] = 0;
-                Log::error("Error en la búsqueda: ".$e);
+                Log::error("Error en la busqueda: " . $e);
                 $req['msg'] = "Se ha producido un error" . $e->getMessage();
             }
-        }else{
+        } else {
             $response['status'] = 0;
-            Log::warning('No se ha introducido ningún parámetro en la búsqueda');
-            $req['msg'] = "No se ha introducido ningun parámetro de búsqueda";
+            Log::warning('No se ha introducido ningún parametro en la busqueda');
+            $response['msg'] = "No se ha introducido ningun parametro de busqueda";
         }
-        Log::debug('Recoger resultados de búsqueda');
-        $response['Resultados de la búsqueda'] = $cards;
+        Log::debug('Recoger resultados de busqueda');
 
         return response()->json($response);
     }
 }
+
+
+
+        /*if ($collection) {
+                $card = new Card();
+                $card->name = $data->name;
+                $card->description = $data->description;
+
+                try {
+                    $card->save();
+                    $selectedCollection = new CardInCollection();
+                    $selectedCollection->card_id = $card->id;
+                    $selectedCollection->collection_id = $collection->id;
+                    $selectedCollection->save();
+                    $response['msg'] = "Carta registrada con id: " . $card->id . " en coleccion con id:" . $selectedCollection;
+                } catch (\Exception $e) {
+                    $response['status'] = 0;
+                    $req['msg'] = "Se ha producido un error" . $e->getMessage();
+                }
+            } else {
+                $response['status'] = 0;
+                $req['msg'] = "No existe esa coleccion";
+            }*/

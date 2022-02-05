@@ -20,7 +20,7 @@ class TokenValidation
     {
         Log::info('- Entrada middleware sesión -');
         if (isset($request->api_token)) {
-            Log::debug('Sesión iniciada');
+            Log::debug('Llega token');
             $tokenForApi = $request->api_token;
             if(User::where('api_token', $tokenForApi)->first()){
                 Log::debug('Usuario encontrado');
