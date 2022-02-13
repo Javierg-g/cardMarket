@@ -26,7 +26,6 @@ class cardManagement extends Controller
 
         if ($validator->fails()) {
             $response['status'] = "0";
-            print("Errores de la validación:" . $validator->errors());
             $response['msg'] = "Los campos introducidos no son correctos";
         } else {
             $data = json_decode($req->getContent());
@@ -60,7 +59,6 @@ class cardManagement extends Controller
 
         if ($validator->fails()) {
             $response['status'] = "0";
-            print("Errores de la validación:" . $validator->errors());
             $response['msg'] = "Los campos introducidos no son correctos";
             return response()->json($response);
         } else {

@@ -23,10 +23,6 @@ Route::middleware(['token', 'permissions'])->prefix('cardManagement')->group(fun
 
 });
 
-Route::middleware(['token'])->prefix('users')->group(function () {
-    Route::post('/passwordRecovery', [UserController::class, 'passwordRecovery']);
-});
-
 Route::middleware(['token'])->prefix('cards')->group(function () {
     Route::get('/searchCard', [cardManagement::class, 'searchCard']);
 });
@@ -35,4 +31,5 @@ Route::middleware(['token'])->prefix('cards')->group(function () {
 Route::prefix('users')->group(function () {
     Route::put('/register', [UserController::class, 'register']);
     Route::post('/login', [UserController::class, 'login']);
+    Route::post('/passwordRecovery', [UserController::class, 'passwordRecovery']);
 });

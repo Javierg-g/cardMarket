@@ -25,13 +25,12 @@ class UserController extends Controller
 
         if ($validator->fails()) {
             $response['status'] = "0";
-            print("Errores de la validación:" . $validator->errors());
             $response['msg'] = "Los campos introducidos no son correctos";
             return response()->json($response);
         } else {
 
             $data = json_decode($req->getContent());
-        
+
             $user = new User();
             $user->name = $data->name;
             $user->email = $data->email;
@@ -70,9 +69,11 @@ class UserController extends Controller
                     $user->save();
                     $response['msg'] = "Accediendo a la cuenta...";
                 } else {
+                    $response['status'] = 0;
                     $response['msg'] = "La contraseña es incorrecta";
                 }
             } else {
+                $response['status'] = 0;
                 $response['msg'] = "El usuario no se ha encontrado";
             }
         } catch (\Exception $e) {
@@ -94,12 +95,19 @@ class UserController extends Controller
 
                 $user->api_token = null;
 
-                $newPassword = md5("newPass");
+                $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+                $newPassword = array();
+                $alphaLength = strlen($alphabet) - 1;
+                for($i = 0; $i<10; $i++){
+                    $n = rand(0, $alphaLength);
+                    $newPassword[] = $alphabet[$n];
+                }
                 $user->password = Hash::make($newPassword);
                 $user->save();
 
                 $response['msg'] = "Su nueva contraseña es:" . $newPassword;
             } else {
+                $response['status'] = 0;
                 $response['msg'] = "El usuario no se ha encontrado";
             }
         } catch (\Exception $e) {
